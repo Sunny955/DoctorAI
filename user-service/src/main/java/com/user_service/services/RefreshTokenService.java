@@ -14,11 +14,13 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    public RefreshTokenService(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository) {
+        this.userRepository = userRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
 
     @Transactional
     public RefreshToken createRefreshToken(String username) {
@@ -26,6 +28,8 @@ public class RefreshTokenService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + username));
 
         RefreshToken refreshToken = user.getRefreshToken();
+
+        System.out.println("Refresh token! during login here- "+ refreshToken);
 
         if (refreshToken == null) {
             long refreshTokenValidity = 5 * 60 * 60 * 1000;
@@ -35,9 +39,12 @@ public class RefreshTokenService {
                     .user(user)
                     .build();
 
+            user.setRefreshToken(refreshToken);
+            userRepository.save(user);
             refreshTokenRepository.save(refreshToken);
         }
 
+        System.out.println("Got this at the end- "+ refreshToken);
         return refreshToken;
     }
 

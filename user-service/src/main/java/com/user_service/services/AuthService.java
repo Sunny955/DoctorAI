@@ -80,7 +80,7 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + loginRequest.getEmail()));
 
         var accessToken = jwtService.generateToken(user);
-        var refreshToken = refreshTokenService.createRefreshToken(loginRequest.getEmail());
+        var refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
         return LoginResponse.builder()
                 .accessToken(accessToken)

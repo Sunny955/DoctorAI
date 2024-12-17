@@ -2,19 +2,25 @@ package com.user_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -32,20 +38,31 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @Email(message = "Invalid email format")
     private String email;
 
     @Column(nullable = false)
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
     @Column(nullable = false)
+    @NotBlank(message = "Name cannot be blank")
     private String name;
 
     @Column
+    @Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 
     @Column
     @JsonIgnore
@@ -75,25 +92,25 @@ public class User implements UserDetails {
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Or your custom logic
+        return true;
     }
 
     @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Or your custom logic
+        return true;
     }
 
     @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Or your custom logic
+        return true;
     }
 
     @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return true; // Or your custom logic
+        return true;
     }
 }
 
