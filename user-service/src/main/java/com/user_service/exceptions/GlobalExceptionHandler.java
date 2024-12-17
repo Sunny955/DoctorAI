@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -13,7 +14,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleInvalidRequestException(InvalidRequestException ex) {
 
         ErrorResponseDto errorResponse = ErrorResponseDto.builder()
-                .details("Invalid request")
+                .details(ex.getStackTrace().toString())
                 .message(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .timestamp(System.currentTimeMillis())
@@ -26,8 +27,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleGlobalException(Exception ex) {
 
         ErrorResponseDto errorResponse = ErrorResponseDto.builder()
-                .details("Server error")
-                .message(ex.getMessage())
+                .details(ex.getStackTrace().toString())
+                .message(ex.getLocalizedMessage())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .timestamp(System.currentTimeMillis())
                 .build();

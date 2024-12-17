@@ -4,6 +4,7 @@ import com.user_service.entity.RefreshToken;
 import com.user_service.entity.User;
 import com.user_service.repositories.RefreshTokenRepository;
 import com.user_service.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,9 @@ public class RefreshTokenService {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
+    @Transactional
     public RefreshToken createRefreshToken(String username) {
-        User user = userRepository.findByEmail(username)
+        User user = userRepository.findUserByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + username));
 
         RefreshToken refreshToken = user.getRefreshToken();
