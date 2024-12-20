@@ -48,7 +48,6 @@ public class UserAuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Object> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(refreshTokenRequest.getRefreshToken());
         User user = refreshToken.getUser();
 

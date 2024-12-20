@@ -29,8 +29,6 @@ public class RefreshTokenService {
 
         RefreshToken refreshToken = user.getRefreshToken();
 
-        System.out.println("Refresh token! during login here- "+ refreshToken);
-
         if (refreshToken == null) {
             long refreshTokenValidity = 5 * 60 * 60 * 1000;
             refreshToken = RefreshToken.builder()
@@ -39,18 +37,17 @@ public class RefreshTokenService {
                     .user(user)
                     .build();
 
-            user.setRefreshToken(refreshToken);
-            userRepository.save(user);
             refreshTokenRepository.save(refreshToken);
         }
 
-        System.out.println("Got this at the end- "+ refreshToken);
         return refreshToken;
     }
 
     public RefreshToken verifyRefreshToken(String refreshToken) {
         RefreshToken refToken = refreshTokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Refresh token not found!"));
+
+        System.out.println("Reftoken :" + refToken);
 
         if (refToken.getExpirationTime().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(refToken);
