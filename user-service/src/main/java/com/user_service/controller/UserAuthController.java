@@ -3,8 +3,6 @@ package com.user_service.controller;
 import com.user_service.dto.Request.LoginUserRequest;
 import com.user_service.dto.Request.RefreshTokenRequest;
 import com.user_service.dto.Request.RegisterUserRequest;
-import com.user_service.dto.Response.BaseResponse;
-import com.user_service.dto.Response.ForgotPasswordResponse;
 import com.user_service.dto.Response.LoginResponse;
 import com.user_service.dto.Response.UserRegisterResponse;
 import com.user_service.entity.RefreshToken;
