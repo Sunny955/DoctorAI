@@ -41,20 +41,14 @@ public class ForgotPasswordService {
         // OTP valid for 10 minutes
         Date expirationTime = new Date(System.currentTimeMillis() + 10 * 60 * 1000);
 
-        ForgotPassword existingForgotPassword = forgotPasswordRepository.findByUser(user).orElseThrow(() -> new RuntimeException("Data not found"));
+        ForgotPassword forgotPassword = forgotPasswordRepository.findByUser(user).orElse(ForgotPassword.builder()
+                .user(user)
+                .build());
 
-        if (existingForgotPassword !=null) {
-            existingForgotPassword.setOtp(otp);
-            existingForgotPassword.setExpirationTime(expirationTime);
-            forgotPasswordRepository.save(existingForgotPassword);
-        } else {
-            ForgotPassword forgotPassword = ForgotPassword.builder()
-                    .otp(otp)
-                    .expirationTime(expirationTime)
-                    .user(user)
-                    .build();
-            forgotPasswordRepository.save(forgotPassword);
-        }
+        forgotPassword.setOtp(otp);
+        forgotPassword.setExpirationTime(expirationTime);
+
+        forgotPasswordRepository.save(forgotPassword);
 
         // Send OTP to the user's email
         String subject = "Password Reset OTP";
