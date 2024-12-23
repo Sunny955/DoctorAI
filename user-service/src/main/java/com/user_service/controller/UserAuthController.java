@@ -26,7 +26,6 @@ public class UserAuthController {
     private final AuthService authService;
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
-    private final ForgotPasswordService forgotPasswordService;
 
     public UserAuthController(AuthService authService,
                               RefreshTokenService refreshTokenService,
@@ -35,7 +34,6 @@ public class UserAuthController {
         this.authService = authService;
         this.refreshTokenService = refreshTokenService;
         this.jwtService = jwtService;
-        this.forgotPasswordService = forgotPasswordService;
     }
 
     @PostMapping("/register")
@@ -60,19 +58,5 @@ public class UserAuthController {
                 .refreshToken(refreshToken.getRefreshToken())
                 .build();
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
-    }
-
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Object> forgotPassword(@RequestParam String email) {
-        forgotPasswordService.generateAndSendOtp(email);
-        BaseResponse response = new ForgotPasswordResponse("OTP send to your register mail", "SUCCESS");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<Object> resetPassword(@RequestParam Integer otp, @RequestParam String newPassword) {
-        forgotPasswordService.resetPassword(otp, newPassword);
-        BaseResponse response = new ForgotPasswordResponse("Password reset successfully", "SUCCESS");
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
