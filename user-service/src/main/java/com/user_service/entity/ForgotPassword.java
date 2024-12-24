@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Getter
