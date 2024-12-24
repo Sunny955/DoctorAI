@@ -1,7 +1,6 @@
 package com.user_service.config;
 
 import com.user_service.services.AuthFilterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
