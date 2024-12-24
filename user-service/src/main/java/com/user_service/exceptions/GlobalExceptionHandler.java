@@ -14,7 +14,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleInvalidRequestException(InvalidRequestException ex) {
 
         ErrorResponseDto errorResponse = ErrorResponseDto.builder()
-                .details(ex.getStackTrace().toString())
+                .details("Invalid request exception")
                 .message(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .timestamp(System.currentTimeMillis())
@@ -27,12 +27,37 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleGlobalException(Exception ex) {
 
         ErrorResponseDto errorResponse = ErrorResponseDto.builder()
-                .details(ex.getStackTrace().toString())
-                .message(ex.getLocalizedMessage())
+                .details("Got exception")
+                .message(ex.getMessage())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .timestamp(System.currentTimeMillis())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(PasswordReuseException.class)
+    public ResponseEntity<ErrorResponseDto> handlePasswordReuseException(PasswordReuseException ex) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .details("Password reuse error")
+                .message(ex.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .timestamp(System.currentTimeMillis())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OtpExpiredException.class)
+    public ResponseEntity<ErrorResponseDto> handleOtpException(OtpExpiredException ex) {
+
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .details("Otp expired")
+                .message(ex.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(System.currentTimeMillis())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

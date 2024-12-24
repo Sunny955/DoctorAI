@@ -2,6 +2,8 @@ package com.user_service.services;
 
 import com.user_service.entity.ForgotPassword;
 import com.user_service.entity.User;
+import com.user_service.exceptions.OtpExpiredException;
+import com.user_service.exceptions.PasswordReuseException;
 import com.user_service.repositories.ForgotPasswordRepository;
 import com.user_service.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Optional;
 
 
 @Service
@@ -64,7 +65,7 @@ public class ForgotPasswordService {
 
         if (forgotPassword.getExpirationTime().before(new Date())) {
             forgotPasswordRepository.delete(forgotPassword);
-            throw new RuntimeException("OTP expired!");
+            throw new OtpExpiredException("OTP expired!");
         }
     }
 
@@ -75,6 +76,11 @@ public class ForgotPasswordService {
         validateOtp(otp);
 
         User user = forgotPassword.getUser();
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new PasswordReuseException("You cannot reuse your previous password. Please choose a new password.");
+        }
+
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
