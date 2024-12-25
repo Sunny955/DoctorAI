@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class ForgotPasswordService {
     private static final long OTP_EXPIRATION_TIME = 10 * 60;
+    private static final long USER_INFO_TTL = 60 * 60;
     private static final String FORGOT_PASSWORD = "forgot_password";
     private final AtomicReference<String> atomicEmail = new AtomicReference<>();
     private final ForgotPasswordRepository forgotPasswordRepository;
@@ -43,11 +44,18 @@ public class ForgotPasswordService {
     }
 
     public void generateAndSendOtp(String email) {
-        User user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+        String key = FORGOT_PASSWORD + email;
+        String userKey = "user:" + email;
+
+        User user = (User) redisTemplate.opsForValue().get(userKey);
+        if (user == null) {
+            user = userRepository.findUserByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found!"));
+
+            redisTemplate.opsForValue().set(userKey, user, USER_INFO_TTL, TimeUnit.SECONDS);
+        }
 
         atomicEmail.set(email);
-        String key = FORGOT_PASSWORD + email;
 
         // Generate a 6-digit OTP
         int otp = (int) (Math.random() * 900000) + 100000;
@@ -116,7 +124,13 @@ public class ForgotPasswordService {
 
         validateOtp(email, otp);
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found!"));
+        String userKey = "user:" + email;
+
+        User user = (User) redisTemplate.opsForValue().get(userKey);
+        if (user == null) {
+            user = userRepository.findUserByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found!"));
+        }
 
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new PasswordReuseException("You cannot reuse your previous password. Please choose a new password.");
@@ -128,5 +142,8 @@ public class ForgotPasswordService {
         // Remove the OTP record after successful password reset
         ForgotPassword forgotPassword = forgotPasswordRepository.findByUser(user).orElseThrow(() -> new RuntimeException("No data found!"));
         forgotPasswordRepository.delete(forgotPassword);
+
+        redisTemplate.delete(FORGOT_PASSWORD + email);
+        redisTemplate.delete(userKey);
     }
 }
