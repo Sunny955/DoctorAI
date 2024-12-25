@@ -36,8 +36,7 @@ build/
 /mvnw
 /mvnw.cmd
 
-/user-service/src/main/resources/application.properties
-*.properties
+.env
 
 
 
