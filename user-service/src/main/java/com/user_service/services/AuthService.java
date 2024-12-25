@@ -5,6 +5,8 @@ import com.user_service.dto.Request.RegisterUserRequest;
 import com.user_service.dto.Response.LoginResponse;
 import com.user_service.entity.User;
 import com.user_service.entity.UserRole;
+import com.user_service.exceptions.FieldEmptyException;
+import com.user_service.exceptions.PasswordLengthException;
 import com.user_service.repositories.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -40,6 +42,15 @@ public class AuthService {
 
     @Transactional
     public User register(RegisterUserRequest registerRequest) {
+
+        if(registerRequest.getEmail().isEmpty() || registerRequest.getName().isEmpty() || registerRequest.getPassword().isEmpty()) {
+            throw new FieldEmptyException("Invalid input");
+        }
+
+        if(registerRequest.getPassword().length() < 6) {
+            throw new PasswordLengthException("Invalid input");
+        }
+
         try {
             var user = User.builder()
                     .name(registerRequest.getName())
@@ -68,7 +79,11 @@ public class AuthService {
     public LoginResponse login(LoginUserRequest loginRequest) {
 
         if(loginRequest.getEmail().isEmpty() || loginRequest.getPassword().isEmpty()) {
-            throw new RuntimeException("email or password can't be empty");
+            throw new FieldEmptyException("Invalid input");
+        }
+
+        if(loginRequest.getPassword().length() < 6) {
+            throw new PasswordLengthException("Invalid input");
         }
 
         authenticationManager.authenticate(

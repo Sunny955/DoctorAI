@@ -60,4 +60,28 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(FieldEmptyException.class)
+    public ResponseEntity<ErrorResponseDto> handlePasswordReuseException(FieldEmptyException ex) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .details("Either of email, name or password is empty")
+                .message(ex.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .timestamp(System.currentTimeMillis())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PasswordLengthException.class)
+    public ResponseEntity<ErrorResponseDto> handlePasswordReuseException(PasswordLengthException ex) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .details("Length of password should be of atleast 6 characters")
+                .message(ex.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .timestamp(System.currentTimeMillis())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }
