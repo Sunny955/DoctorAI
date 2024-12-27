@@ -55,11 +55,4 @@ public class RefreshTokenService {
 
         return refToken;
     }
-
-    public void invalidateRefreshToken(String refreshToken) {
-        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
-
-        refreshTokenRepository.delete(token);
-    }
 }
