@@ -2,6 +2,7 @@ package com.user_service.services;
 
 import com.user_service.entity.RefreshToken;
 import com.user_service.entity.User;
+import com.user_service.exceptions.RefreshTokenNotFoundException;
 import com.user_service.repositories.RefreshTokenRepository;
 import com.user_service.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -45,9 +46,7 @@ public class RefreshTokenService {
 
     public RefreshToken verifyRefreshToken(String refreshToken) {
         RefreshToken refToken = refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found!"));
-
-        System.out.println("Reftoken :" + refToken);
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found!"));
 
         if (refToken.getExpirationTime().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(refToken);
@@ -55,5 +54,12 @@ public class RefreshTokenService {
         }
 
         return refToken;
+    }
+
+    public void invalidateRefreshToken(String refreshToken) {
+        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
+
+        refreshTokenRepository.delete(token);
     }
 }
