@@ -35,14 +35,14 @@ public class UserAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Object> userRegister(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
+    public ResponseEntity<Object> userRegister(@RequestBody RegisterUserRequest registerUserRequest) {
         User u = authService.register(registerUserRequest);
         UserRegisterResponse userRegisterResponse = new UserRegisterResponse("User saved successfully!","SUCCESS", u);
         return new ResponseEntity<>(userRegisterResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> userLogin(@Valid @RequestBody LoginUserRequest loginUserRequest) {
+    public ResponseEntity<Object> userLogin(@RequestBody LoginUserRequest loginUserRequest) {
         return new ResponseEntity<>(authService.login(loginUserRequest), HttpStatus.OK);
     }
 
