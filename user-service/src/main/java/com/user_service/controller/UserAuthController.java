@@ -6,6 +6,7 @@ import com.user_service.dto.Request.RegisterUserRequest;
 import com.user_service.dto.Response.LoginResponse;
 import com.user_service.dto.Response.LogoutResponse;
 import com.user_service.dto.Response.UserRegisterResponse;
+import com.user_service.dto.Response.UserResponse;
 import com.user_service.entity.RefreshToken;
 import com.user_service.entity.User;
 import com.user_service.services.AuthService;
@@ -38,7 +39,8 @@ public class UserAuthController {
     @PostMapping("/register")
     public ResponseEntity<Object> userRegister(@RequestBody RegisterUserRequest registerUserRequest) {
         User u = authService.register(registerUserRequest);
-        UserRegisterResponse userRegisterResponse = new UserRegisterResponse("User saved successfully!","SUCCESS", u);
+        UserResponse response = new UserResponse(u);
+        UserRegisterResponse userRegisterResponse = new UserRegisterResponse("User saved successfully!","SUCCESS", response);
         return new ResponseEntity<>(userRegisterResponse, HttpStatus.CREATED);
     }
 

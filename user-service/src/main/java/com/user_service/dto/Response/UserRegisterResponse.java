@@ -4,7 +4,7 @@ import com.user_service.entity.User;
 
 
 public class UserRegisterResponse extends PostRequestSuccessResponse {
-    public UserRegisterResponse(String message, String status, User data) {
+    public UserRegisterResponse(String message, String status, UserResponse data) {
         super(message, status, data);
     }
 
