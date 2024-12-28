@@ -55,4 +55,14 @@ public class RefreshTokenService {
 
         return refToken;
     }
+
+    @Transactional
+    public void deleteToken(RefreshToken token) {
+        refreshTokenRepository.delete(token);
+    }
+
+    public RefreshToken getRefreshTokenByUser(String username) {
+        return refreshTokenRepository.findByUser_Email(username)
+                .orElseThrow(() -> new RuntimeException("Refresh token not found for user: " + username));
+    }
 }

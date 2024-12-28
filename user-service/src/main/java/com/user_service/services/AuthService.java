@@ -2,7 +2,10 @@ package com.user_service.services;
 
 import com.user_service.dto.Request.LoginUserRequest;
 import com.user_service.dto.Request.RegisterUserRequest;
+import com.user_service.dto.Response.BaseResponse;
 import com.user_service.dto.Response.LoginResponse;
+import com.user_service.dto.Response.LogoutResponse;
+import com.user_service.entity.RefreshToken;
 import com.user_service.entity.User;
 import com.user_service.entity.UserRole;
 import com.user_service.exceptions.FieldEmptyException;
@@ -12,6 +15,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -101,5 +106,29 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getRefreshToken())
                 .build();
+    }
+
+    public LogoutResponse logout(String authHeader) {
+        LogoutResponse response;
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response = new LogoutResponse("401", "Authorization header missing or invalid");
+            return response;
+        }
+        String accessToken = authHeader.substring(7);
+
+        String username = jwtService.extractUsername(accessToken);
+        if (username == null) {
+            response = new LogoutResponse("401", "Invalid access token");
+            return response;
+        }
+
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUser(username);
+
+        refreshTokenService.deleteToken(refreshToken);
+
+        response = new LogoutResponse("200", "User logged out successfully");
+
+        return response;
     }
 }

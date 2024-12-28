@@ -66,8 +66,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private boolean isActive = true;
 
-    @OneToOne(mappedBy = "user")
-    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private RefreshToken refreshToken;
 
     @Override
