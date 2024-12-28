@@ -4,6 +4,7 @@ import com.user_service.dto.Request.LoginUserRequest;
 import com.user_service.dto.Request.RefreshTokenRequest;
 import com.user_service.dto.Request.RegisterUserRequest;
 import com.user_service.dto.Response.LoginResponse;
+import com.user_service.dto.Response.LogoutResponse;
 import com.user_service.dto.Response.UserRegisterResponse;
 import com.user_service.entity.RefreshToken;
 import com.user_service.entity.User;
@@ -56,5 +57,14 @@ public class UserAuthController {
                 .refreshToken(refreshToken.getRefreshToken())
                 .build();
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        String response = authService.validate(authHeader);
+        if(response.startsWith("Invalid")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Validated");
     }
 }

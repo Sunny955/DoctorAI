@@ -131,4 +131,28 @@ public class AuthService {
 
         return response;
     }
+
+    public String validate(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return "Invalid access token";
+        }
+
+        String token = authHeader.substring(7);
+
+        String username = jwtService.extractUsername(token);
+
+        if (username == null) {
+            return "Invalid access token";
+        }
+
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUser(username);
+
+        User user = refreshToken.getUser();
+
+        if (jwtService.isTokenValid(token, user)) {
+            return jwtService.extractUsername(token);
+        }
+
+        return "Invalid access token";
+    }
 }
