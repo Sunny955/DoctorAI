@@ -1,6 +1,5 @@
 package com.user_service.dto.Response;
 
-import com.user_service.entity.User;
 
 
 public class UserRegisterResponse extends PostRequestSuccessResponse {
