@@ -1,18 +1,29 @@
 package com.diagnosis_service.dto.Response;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class GenerateResponse {
     private String status;
     private String data;
+
+    public GenerateResponse() {}
+
+    public GenerateResponse(String status, String data) {
+        this.status = status;
+        this.data = data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
 }

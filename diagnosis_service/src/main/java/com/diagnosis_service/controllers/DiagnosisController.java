@@ -1,5 +1,6 @@
 package com.diagnosis_service.controllers;
 
+import com.diagnosis_service.dto.Response.GenerateResponse;
 import com.diagnosis_service.services.DiagnosisService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,16 +30,18 @@ public class DiagnosisController {
 
         String response = diagnosisService.generateText(description, base64Image);
 
-//        GenerateResponse responseAI;
+        GenerateResponse responseAI = new GenerateResponse();
 
         if(response ==null || response.startsWith("Error")) {
-//            responseAI = new GenerateResponse("FAILED", "No data available");
-            return new ResponseEntity<>("FAILED", HttpStatus.INTERNAL_SERVER_ERROR);
+            responseAI.setData("No server response");
+            responseAI.setStatus("FAILED");
+            return new ResponseEntity<>(responseAI, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-//        responseAI = new GenerateResponse("SUCCESS", response);
+        responseAI.setData(response);
+        responseAI.setStatus("SUCCESS");
 
-        return ResponseEntity.status(200).body(response);
+        return new ResponseEntity<>(responseAI, HttpStatus.OK);
     }
 
 }
