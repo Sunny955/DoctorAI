@@ -23,6 +23,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -132,9 +135,13 @@ public class AuthService {
         return response;
     }
 
-    public String validate(String authHeader) {
+    public Map<Object,Object> validate(String authHeader) {
+        Map<Object,Object> output = new HashMap<>();
+        output.put("user_id", null);
+        output.put("token", "Invalid access token");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return "Invalid access token";
+            return output;
         }
 
         String token = authHeader.substring(7);
@@ -142,7 +149,7 @@ public class AuthService {
         String username = jwtService.extractUsername(token);
 
         if (username == null) {
-            return "Invalid access token";
+            return output;
         }
 
         RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUser(username);
@@ -150,9 +157,11 @@ public class AuthService {
         User user = refreshToken.getUser();
 
         if (jwtService.isTokenValid(token, user)) {
-            return jwtService.extractUsername(token);
+            output.put("user_id", user.getId());
+            output.put("token", "Valid access token");
+            return output;
         }
 
-        return "Invalid access token";
+        return output;
     }
 }

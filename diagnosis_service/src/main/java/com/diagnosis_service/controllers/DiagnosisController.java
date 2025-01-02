@@ -1,7 +1,9 @@
 package com.diagnosis_service.controllers;
 
 import com.diagnosis_service.dto.Response.GenerateResponse;
+import com.diagnosis_service.repository.HistoryRepository;
 import com.diagnosis_service.services.DiagnosisService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +18,24 @@ import java.util.Base64;
 public class DiagnosisController {
 
     private final DiagnosisService diagnosisService;
+    private final HistoryRepository historyRepository;
 
-    public DiagnosisController(DiagnosisService diagnosisService) {
+    public DiagnosisController(DiagnosisService diagnosisService, HistoryRepository historyRepository) {
         this.diagnosisService = diagnosisService;
+        this.historyRepository = historyRepository;
     }
 
     @PostMapping(value = "/analyze", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> analyzeImage(@RequestPart("image") MultipartFile image,
-                                               @RequestParam(value = "description", required = false) String description) throws IOException
+                                               @RequestParam(value = "description", required = false) String description,
+                                               HttpServletRequest request) throws IOException
     {
-        // Convert image to Base64
+        Long userId = (Long) request.getAttribute("user_id");
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID not found");
+        }
+
         String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
 
         String response = diagnosisService.generateText(description, base64Image);

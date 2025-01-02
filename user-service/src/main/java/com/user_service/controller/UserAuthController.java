@@ -4,7 +4,6 @@ import com.user_service.dto.Request.LoginUserRequest;
 import com.user_service.dto.Request.RefreshTokenRequest;
 import com.user_service.dto.Request.RegisterUserRequest;
 import com.user_service.dto.Response.LoginResponse;
-import com.user_service.dto.Response.LogoutResponse;
 import com.user_service.dto.Response.UserRegisterResponse;
 import com.user_service.dto.Response.UserResponse;
 import com.user_service.entity.RefreshToken;
@@ -13,11 +12,12 @@ import com.user_service.services.AuthService;
 import com.user_service.services.ForgotPasswordService;
 import com.user_service.services.JwtService;
 import com.user_service.services.RefreshTokenService;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -63,10 +63,12 @@ public class UserAuthController {
 
     @GetMapping("/validate")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
-        String response = authService.validate(authHeader);
-        if(response.startsWith("Invalid")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        Map<Object, Object> response = authService.validate(authHeader);
+        String token = (String) response.get("token");
+
+        if(token.startsWith("Invalid")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(token);
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Validated");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

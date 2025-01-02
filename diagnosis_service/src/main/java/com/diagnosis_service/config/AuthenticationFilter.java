@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
@@ -42,14 +43,33 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> validationResponse = restTemplate.exchange(validationUrl, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<Map> validationResponse = restTemplate.exchange(validationUrl, HttpMethod.GET, requestEntity, Map.class);
 
             // Validate the response
-            if (!validationResponse.getStatusCode().is2xxSuccessful() || validationResponse.getBody().startsWith("Invalid")) {
+            if (!validationResponse.getStatusCode().is2xxSuccessful()) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter().write("Invalid token");
                 return;
             }
+
+            Map<Object, Object> responseBody = validationResponse.getBody();
+
+            if (responseBody == null || responseBody.get("token") == null
+                    || "Invalid access token".equals(responseBody.get("token"))) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Invalid token");
+                return;
+            }
+
+            Object userIdObj = responseBody.get("user_id");
+            if (userIdObj == null) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Missing user_id in validation response");
+                return;
+            }
+
+            Long userId = Long.parseLong(userIdObj.toString());
+            request.setAttribute("user_id", userId);
 
         } catch (Exception e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -57,7 +77,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Proceed with the filter chain if the token is valid
         filterChain.doFilter(request, response);
     }
 }
