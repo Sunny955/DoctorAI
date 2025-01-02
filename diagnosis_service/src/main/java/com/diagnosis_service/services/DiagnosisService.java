@@ -29,9 +29,9 @@ public class DiagnosisService {
             HttpPost httpPost = new HttpPost(API_ENDPOINT + "?key=" + API_KEY);
             httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
 
-
-            description = "This is the image of my skin what kind of disease it is?";
-
+            if(description == null) {
+                description = "This is the image of my skin what kind of disease it is?";
+            }
 
             String requestBody = """
                     {

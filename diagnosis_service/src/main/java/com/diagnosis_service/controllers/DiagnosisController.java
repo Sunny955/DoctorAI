@@ -30,8 +30,6 @@ public class DiagnosisController {
 
         String response = diagnosisService.generateText(description, base64Image);
 
-        System.out.println("RESPONSE FROM GEMINI: "+response);
-
         GenerateResponse responseAI = new GenerateResponse();
 
         if(response ==null || response.startsWith("Error")) {
