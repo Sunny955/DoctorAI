@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(collection = "query_history")
 @AllArgsConstructor
@@ -21,8 +22,9 @@ public class History {
     private String id;
 
     private Long userId;
-    private String queryDescription;
-    private String queryResult;
+    private List<String> queries;
+    private List<String> queryResult;
+    private LocalDateTime lastUpdated;
 
     @Indexed
     private LocalDateTime timestamp;

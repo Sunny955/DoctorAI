@@ -1,11 +1,9 @@
 package com.diagnosis_service.controllers;
 
 import com.diagnosis_service.dto.Response.GenerateResponse;
-import com.diagnosis_service.repository.HistoryRepository;
 import com.diagnosis_service.services.DiagnosisService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,15 +16,13 @@ import java.util.Base64;
 public class DiagnosisController {
 
     private final DiagnosisService diagnosisService;
-    private final HistoryRepository historyRepository;
 
-    public DiagnosisController(DiagnosisService diagnosisService, HistoryRepository historyRepository) {
+    public DiagnosisController(DiagnosisService diagnosisService) {
         this.diagnosisService = diagnosisService;
-        this.historyRepository = historyRepository;
     }
 
-    @PostMapping(value = "/analyze", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> analyzeImage(@RequestPart("image") MultipartFile image,
+    @PostMapping(value = "/analyze")
+    public ResponseEntity<Object> analyzeImage(@RequestPart(value = "image", required = false) MultipartFile image,
                                                @RequestParam(value = "description", required = false) String description,
                                                HttpServletRequest request) throws IOException
     {
@@ -36,9 +32,17 @@ public class DiagnosisController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User ID not found");
         }
 
-        String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
+        if (image == null && (description == null || description.isEmpty())) {
+            return ResponseEntity.badRequest().body("At least one of image or description must be provided");
+        }
 
-        String response = diagnosisService.generateText(description, base64Image);
+        String base64Image = null;
+
+        if(image != null) {
+            base64Image = Base64.getEncoder().encodeToString(image.getBytes());
+        }
+
+        String response = diagnosisService.generateText(description, base64Image, userId);
 
         GenerateResponse responseAI = new GenerateResponse();
 

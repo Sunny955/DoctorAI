@@ -12,6 +12,7 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,13 @@ public class DiagnosisService {
     @Value("${api_key}")
     private String API_KEY;
 
-    public String generateText(String description, String imageBase64) {
+    private final HistoryService historyService;
+
+    public DiagnosisService(HistoryService historyService) {
+        this.historyService = historyService;
+    }
+
+    public String generateText(String description, String imageBase64, Long userId) {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(API_ENDPOINT + "?key=" + API_KEY);
             httpPost.setHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
@@ -33,18 +40,34 @@ public class DiagnosisService {
                 description = "This is the image of my skin what kind of disease it is?";
             }
 
-            String requestBody = """
+            String requestBody = null;
+            if (imageBase64 != null && !imageBase64.isEmpty()) {
+                // Payload with image
+                requestBody = """
                     {
                         "contents": [{
-                            "parts": [{"text": "%s"},{
-                                        "inline_data": {
-                                          "mime_type": "image/jpeg",
-                                           "data": "%s"
-                                           }
-                                  }]
+                            "parts": [
+                                {"text": "%s"},
+                                {
+                                    "inline_data": {
+                                        "mime_type": "image/jpeg",
+                                        "data": "%s"
+                                    }
+                                }
+                            ]
                         }]
                     }
                     """.formatted(description, imageBase64);
+            } else {
+                // Payload without image
+                requestBody = """
+                    {
+                        "contents": [{
+                            "parts": [{"text": "%s"}]
+                        }]
+                    }
+                    """.formatted(description);
+            }
 
             httpPost.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
@@ -73,7 +96,11 @@ public class DiagnosisService {
                 }
             };
 
-            return httpClient.execute(httpPost, responseHandler);
+            String result = httpClient.execute(httpPost, responseHandler);
+
+            historyService.storeQueryHistory(userId, requestBody, result);
+
+            return result;
 
         } catch (Exception e) {
             return "Error generating text: " + e.getMessage();
