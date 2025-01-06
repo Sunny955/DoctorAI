@@ -73,7 +73,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write("Authorization service is unavailable");
+            response.getWriter().write("Unable to authorize the token");
             return;
         }
 
