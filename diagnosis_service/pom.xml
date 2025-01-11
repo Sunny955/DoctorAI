@@ -42,7 +42,11 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>io.github.cdimascio</groupId>
+      <artifactId>dotenv-java</artifactId>
+      <version>3.1.0</version>
+    </dependency>
     <!-- Apache Commons Codec (for Base64 encoding/decoding) -->
     <dependency>
       <groupId>commons-codec</groupId>
